@@ -1,0 +1,29 @@
+{
+  "name": "mision-nevado-offline",
+  "version": "1.0.0",
+  "description": "Prototipo de sistema resiliente de campo y atención veterinaria Offline-First para la Fundación Misión Nevado",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev-server": "nodemon server.js",
+    "type": "module"
+  },
+  "keywords": [
+    "veterinaria",
+    "offline-first",
+    "express",
+    "sqlite3",
+    "mision-nevado",
+    "venezuela"
+  ],
+  "author": "Arquitecto de Software - Misión Nevado",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  }
+}

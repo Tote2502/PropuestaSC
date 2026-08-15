@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-50 dark:bg-slate-900">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Misión Nevado - Sistema Accesible de Atención Veterinaria</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'media',
+            theme: {
+                extend: {
+                    colors: {
+                        nevado: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                            800: '#115e59',
+                            900: '#134e4a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            font-size: 17px;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col text-slate-800 dark:text-slate-100 bg-slate-50 dark:bg-slate-900">
+
+    <!-- BARRA SUPERIOR DE NAVEGACIÓN Y ESTADO DE RED ACCESIBLE -->
+    <header class="bg-nevado-800 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="bg-white p-2.5 rounded-2xl shadow text-nevado-700 text-2xl font-black">
+                    🐾
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-xl sm:text-2xl leading-tight tracking-wide">MISIÓN NEVADO</h1>
+                    <p class="text-sm text-nevado-100 font-medium">Atención Veterinaria y Bienestar Animal</p>
+                </div>
+            </div>
+
+            <!-- Indicador Offline-First Accesible -->
+            <div class="flex items-center space-x-3 bg-nevado-900/90 px-4 py-2 rounded-xl border border-nevado-600">
+                <div class="flex items-center text-sm font-bold">
+                    <span id="network-status-dot" class="h-4 w-4 rounded-full bg-emerald-400 mr-2"></span>
+                    <span id="network-status-text">Estado de Conexión</span>
+                    <span id="offline-badge-count"
+                        class="bg-amber-500 text-white text-xs px-2.5 py-1 rounded-full font-extrabold ml-2">0</span>
+                </div>
+                <button id="btn-sync-now" onclick="NevadoOffline.syncPendingData()"
+                    class="bg-amber-500 hover:bg-amber-600 text-slate-900 font-extrabold text-sm px-4 py-2 rounded-lg shadow-md transition transform active:scale-95 flex items-center gap-1.5">
+                    🔄 Sincronizar
+                </button>
+            </div>
+        </div>
+
+        <!-- Navegación con Letras Grandes -->
+        <nav class="bg-nevado-900 border-t border-nevado-700">
+            <div class="max-w-7xl mx-auto px-4 flex space-x-6 text-base font-bold">
+                <a href="index.html"
+                    class="py-3 px-4 text-white border-b-4 border-amber-400 flex items-center gap-2">
+                    📊 Inicio (Dashboard)
+                </a>
+                <a href="registro.html"
+                    class="py-3 px-4 text-nevado-100 hover:text-white border-b-4 border-transparent hover:border-amber-300 transition flex items-center gap-2">
+                    📋 Módulos de Atención
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+        <!-- BANNER DE RESILIENCIA Y ACCESO RÁPIDO -->
+        <div class="bg-gradient-to-r from-nevado-800 to-nevado-900 text-white p-6 rounded-2xl shadow-xl border-l-8 border-amber-400 flex flex-wrap justify-between items-center gap-6">
+            <div class="space-y-1">
+                <h2 class="font-extrabold text-xl sm:text-2xl flex items-center gap-2">
+                    📶 Sistema de Campo - Modo Offline
+                </h2>
+                <p class="text-base text-nevado-100 max-w-3xl leading-relaxed">
+                    Puedes registrar pacientes y atenciones sin preocuparte por la señal de internet. Todo se guardará de forma segura en este equipo.
+                </p>
+            </div>
+            <a href="registro.html"
+                class="bg-amber-400 hover:bg-amber-300 text-slate-900 font-black px-6 py-3.5 rounded-xl shadow-lg text-base transition transform active:scale-95 flex items-center gap-2">
+                ➕ Nuevo Registro
+            </a>
+        </div>
+
+        <!-- SECCIÓN 1: TARJETAS ANALÍTICAS ACCESIBLES -->
+        <section class="space-y-4">
+            <div class="flex items-center justify-between">
+                <h2 class="text-xl font-extrabold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                    📈 Estadísticas de Atención
+                </h2>
+                <span class="text-sm font-semibold text-slate-500">Resumen General</span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                <!-- Tarjeta Rescatados Mes Actual -->
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow border border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                    <div>
+                        <div class="text-sm font-bold text-slate-500 uppercase tracking-wide">Rescatados (Mes)</div>
+                        <div id="stat-rescatados-mes" class="text-4xl font-black text-amber-500 mt-2">0</div>
+                        <div class="text-xs text-emerald-600 font-bold mt-1">▲ Rescates comunitarios</div>
+                    </div>
+                    <div class="text-4xl">🐶</div>
+                </div>
+
+                <!-- Tarjeta Total Pacientes -->
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow border border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                    <div>
+                        <div class="text-sm font-bold text-slate-500 uppercase tracking-wide">Total Atendidos</div>
+                        <div id="stat-total-pacientes" class="text-4xl font-black text-nevado-600 dark:text-nevado-400 mt-2">0</div>
+                        <div class="text-xs text-slate-400 font-medium mt-1">En el sistema</div>
+                    </div>
+                    <div class="text-4xl">📋</div>
+                </div>
+
+                <!-- Tarjeta Consultas & Vacunas -->
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow border border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                    <div>
+                        <div class="text-sm font-bold text-slate-500 uppercase tracking-wide">Vacunas Aplicadas</div>
+                        <div id="stat-total-vacunas" class="text-4xl font-black text-blue-600 dark:text-blue-400 mt-2">0</div>
+                        <div class="text-xs text-slate-400 font-medium mt-1">Dosis registradas</div>
+                    </div>
+                    <div class="text-4xl">💉</div>
+                </div>
+
+                <!-- Tarjeta Pendientes Offline -->
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-md border-2 border-amber-400 flex items-center justify-between">
+                    <div>
+                        <div class="text-sm font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wide">Por Sincronizar</div>
+                        <div id="stat-pendientes-sync" class="text-4xl font-black text-amber-500 mt-2">0</div>
+                        <div class="text-xs text-amber-600 font-bold mt-1">Guardados localmente</div>
+                    </div>
+                    <div class="text-4xl">⏳</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 2: ACCESOS RÁPIDOS MINIMALISTAS Y GRÁFICO -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Accesos Directos Claros -->
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow border border-slate-200 dark:border-slate-700 space-y-4">
+                <h3 class="font-extrabold text-slate-900 dark:text-slate-100 text-lg border-b pb-3">
+                    ⚡ ¿Qué deseas hacer hoy?
+                </h3>
+
+                <div class="space-y-3">
+                    <a href="registro.html?tab=paciente"
+                        class="w-full flex items-center justify-between p-4 rounded-xl bg-nevado-50 dark:bg-slate-700/60 hover:bg-nevado-100 text-nevado-900 dark:text-nevado-100 transition shadow-sm border border-nevado-200 dark:border-slate-600">
+                        <span class="font-bold text-base">🐶 1. Registrar Nuevo Paciente</span>
+                        <span class="text-xl">➔</span>
+                    </a>
+                    <a href="registro.html?tab=consulta"
+                        class="w-full flex items-center justify-between p-4 rounded-xl bg-purple-50 dark:bg-slate-700/60 hover:bg-purple-100 text-purple-900 dark:text-purple-100 transition shadow-sm border border-purple-200 dark:border-slate-600">
+                        <span class="font-bold text-base">🩺 2. Consulta / Triaje Médico</span>
+                        <span class="text-xl">➔</span>
+                    </a>
+                    <a href="registro.html?tab=vacuna"
+                        class="w-full flex items-center justify-between p-4 rounded-xl bg-blue-50 dark:bg-slate-700/60 hover:bg-blue-100 text-blue-900 dark:text-blue-100 transition shadow-sm border border-blue-200 dark:border-slate-600">
+                        <span class="font-bold text-base">💉 3. Aplicar Vacuna o Tratamiento</span>
+                        <span class="text-xl">➔</span>
+                    </a>
+                    <a href="registro.html?tab=esteril"
+                        class="w-full flex items-center justify-between p-4 rounded-xl bg-emerald-50 dark:bg-slate-700/60 hover:bg-emerald-100 text-emerald-900 dark:text-emerald-100 transition shadow-sm border border-emerald-200 dark:border-slate-600">
+                        <span class="font-bold text-base">✂️ 4. Esterilización / Castración</span>
+                        <span class="text-xl">➔</span>
+                    </a>
+                    <a href="registro.html?tab=cvi"
+                        class="w-full flex items-center justify-between p-4 rounded-xl bg-amber-50 dark:bg-slate-700/60 hover:bg-amber-100 text-amber-900 dark:text-amber-100 transition shadow-sm border border-amber-200 dark:border-slate-600">
+                        <span class="font-bold text-base">🏥 5. Agendar Cita en CVI</span>
+                        <span class="text-xl">➔</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Gráfico de Rescates Mensuales -->
+            <div class="lg:col-span-2 bg-white dark:bg-slate-800 p-6 rounded-2xl shadow border border-slate-200 dark:border-slate-700 space-y-4">
+                <div>
+                    <h3 class="font-extrabold text-slate-900 dark:text-slate-100 text-lg">
+                        📊 Histórico Mensual de Rescates
+                    </h3>
+                    <p class="text-sm text-slate-500">Muestra la cantidad de animales rescatados por mes</p>
+                </div>
+
+                <div id="rescue-history-bars" class="space-y-4 py-2">
+                    <div class="animate-pulse flex space-x-4 py-4">
+                        <div class="flex-1 space-y-4">
+                            <div class="h-5 bg-slate-200 rounded w-3/4"></div>
+                            <div class="h-5 bg-slate-200 rounded"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 3: PACIENTES RECIENTES CON BOTÓN DE ELIMINAR -->
+        <section class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow border border-slate-200 dark:border-slate-700 space-y-4">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h3 class="font-extrabold text-slate-900 dark:text-slate-100 text-lg sm:text-xl">
+                        🐾 Listado de Pacientes Registrados
+                    </h3>
+                    <p class="text-sm text-slate-500">Puedes revisar sus datos o eliminar registros si es necesario</p>
+                </div>
+                <a href="registro.html" class="text-base text-nevado-600 dark:text-nevado-400 hover:underline font-extrabold">
+                    + Agregar Nuevo Paciente
+                </a>
+            </div>
+
+            <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-bold border-b border-slate-200 dark:border-slate-600">
+                            <th class="py-3.5 px-4">Código</th>
+                            <th class="py-3.5 px-4">Nombre</th>
+                            <th class="py-3.5 px-4">Especie</th>
+                            <th class="py-3.5 px-4">Condición</th>
+                            <th class="py-3.5 px-4">Tutor</th>
+                            <th class="py-3.5 px-4 text-center">Estado</th>
+                            <th class="py-3.5 px-4 text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recent-patients-tbody">
+                        <tr>
+                            <td colspan="7" class="text-center py-8 text-slate-400 animate-pulse text-base">
+                                Cargando lista de pacientes...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- PIE DE PÁGINA ACCESIBLE -->
+    <footer class="bg-slate-800 text-slate-300 py-6 border-t border-slate-700 text-center text-sm font-medium mt-auto">
+        <div class="max-w-7xl mx-auto px-4">
+            Fundación Misión Nevado © 2026 - Sistema de Atención Veterinaria Offline | Venezuela
+        </div>
+    </footer>
+
+    <!-- Scripts de la Aplicación -->
+    <script src="js/offline.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>

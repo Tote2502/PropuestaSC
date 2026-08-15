@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-50 dark:bg-slate-900">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Misión Nevado - Módulos de Atención Operativa</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'media',
+            theme: {
+                extend: {
+                    colors: {
+                        nevado: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                            800: '#115e59',
+                            900: '#134e4a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            font-size: 17px;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col text-slate-800 dark:text-slate-100 bg-slate-50 dark:bg-slate-900">
+
+    <!-- BARRA SUPERIOR DE NAVEGACIÓN Y ESTADO DE RED ACCESIBLE -->
+    <header class="bg-nevado-800 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="bg-white p-2.5 rounded-2xl shadow text-nevado-700 text-2xl font-black">
+                    🐾
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-xl sm:text-2xl leading-tight tracking-wide">MISIÓN NEVADO</h1>
+                    <p class="text-sm text-nevado-100 font-medium">Atención Veterinaria y Bienestar Animal</p>
+                </div>
+            </div>
+
+            <!-- Indicador Offline-First Accesible -->
+            <div class="flex items-center space-x-3 bg-nevado-900/90 px-4 py-2 rounded-xl border border-nevado-600">
+                <div class="flex items-center text-sm font-bold">
+                    <span id="network-status-dot" class="h-4 w-4 rounded-full bg-emerald-400 mr-2"></span>
+                    <span id="network-status-text">Estado de Conexión</span>
+                    <span id="offline-badge-count"
+                        class="bg-amber-500 text-white text-xs px-2.5 py-1 rounded-full font-extrabold ml-2">0</span>
+                </div>
+                <button id="btn-sync-now" onclick="NevadoOffline.syncPendingData()"
+                    class="bg-amber-500 hover:bg-amber-600 text-slate-900 font-extrabold text-sm px-4 py-2 rounded-lg shadow-md transition transform active:scale-95 flex items-center gap-1.5">
+                    🔄 Sincronizar
+                </button>
+            </div>
+        </div>
+
+        <!-- Navegación Accesible -->
+        <nav class="bg-nevado-900 border-t border-nevado-700">
+            <div class="max-w-7xl mx-auto px-4 flex space-x-6 text-base font-bold overflow-x-auto">
+                <a href="index.html"
+                    class="py-3 px-4 text-nevado-100 hover:text-white border-b-4 border-transparent hover:border-amber-300 transition flex items-center gap-2">
+                    📊 Inicio (Dashboard)
+                </a>
+                <a href="registro.html"
+                    class="py-3 px-4 text-white border-b-4 border-amber-400 flex items-center gap-2">
+                    📋 Módulos de Atención
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- CONTENIDO PRINCIPAL CON PESTAÑAS DE MÓDULOS -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+        <!-- HEADER DE MÓDULOS ACCESIBLE -->
+        <div
+            class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-md border border-slate-200 dark:border-slate-700 space-y-4">
+            <div>
+                <h2 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 mb-1">
+                    📋 Módulos de Registro de Atención
+                </h2>
+                <p class="text-base text-slate-600 dark:text-slate-300 font-medium">
+                    Haz clic en la pestaña que corresponda al servicio que estás realizando:
+                </p>
+            </div>
+
+            <!-- Pestañas (Tabs) Claros y Accesibles -->
+            <div
+                class="flex border-b border-slate-200 dark:border-slate-700 overflow-x-auto gap-3 pb-2 text-base font-extrabold">
+                <button id="btn-tab-paciente" onclick="switchTab('paciente')"
+                    class="tab-btn py-3 px-4 rounded-xl border-b-4 border-teal-600 text-teal-700 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30 whitespace-nowrap flex items-center gap-2">
+                    🐶 1. Registrar Paciente
+                </button>
+                <button id="btn-tab-consulta" onclick="switchTab('consulta')"
+                    class="tab-btn py-3 px-4 rounded-xl border-b-4 border-transparent text-slate-600 dark:text-slate-400 hover:text-teal-600 whitespace-nowrap flex items-center gap-2">
+                    🩺 2. Triaje y Consulta
+                </button>
+                <button id="btn-tab-vacuna" onclick="switchTab('vacuna')"
+                    class="tab-btn py-3 px-4 rounded-xl border-b-4 border-transparent text-slate-600 dark:text-slate-400 hover:text-teal-600 whitespace-nowrap flex items-center gap-2">
+                    💉 3. Vacunas / Dosis
+                </button>
+                <button id="btn-tab-esteril" onclick="switchTab('esteril')"
+                    class="tab-btn py-3 px-4 rounded-xl border-b-4 border-transparent text-slate-600 dark:text-slate-400 hover:text-teal-600 whitespace-nowrap flex items-center gap-2">
+                    ✂️ 4. Esterilización
+                </button>
+                <button id="btn-tab-cvi" onclick="switchTab('cvi')"
+                    class="tab-btn py-3 px-4 rounded-xl border-b-4 border-transparent text-slate-600 dark:text-slate-400 hover:text-teal-600 whitespace-nowrap flex items-center gap-2">
+                    🏥 5. Cita CVI
+                </button>
+            </div>
+        </div>
+
+        <!-- ==================================================== -->
+        <!-- TAB 1: REGISTRO DE PACIENTE / RESCATE -->
+        <!-- ==================================================== -->
+        <div id="tab-paciente" class="tab-content space-y-8">
+            <div
+                class="bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 max-w-4xl mx-auto space-y-6">
+                <div class="border-b border-slate-200 dark:border-slate-700 pb-4 flex justify-between items-center">
+                    <div>
+                        <h3 class="font-extrabold text-xl text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                            🐶 Registro de Nuevo Paciente
+                        </h3>
+                        <p class="text-base text-slate-500 font-medium">Crea la ficha del animal para habilitar
+                            consultas y vacunas</p>
+                    </div>
+                    <span
+                        class="bg-teal-100 text-teal-800 dark:bg-teal-900/50 dark:text-teal-300 text-sm px-3.5 py-1.5 rounded-xl font-black">
+                        Paso 1
+                    </span>
+                </div>
+
+                <form onsubmit="submitPatientForm(event)" class="space-y-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-base font-bold text-slate-800 dark:text-slate-200 mb-2">Nombre del
+                                Animal *</label>
+                            <input type="text" name="nombre" required placeholder="Ej: Nevado, Pelusa, Sol"
+                                class="w-full text-base p-3.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 focus:ring-4 focus:ring-teal-500/30 focus:outline-none font-medium">
+                        </div>
+
+                        <div>
+                            <label class="block text-base font-bold text-slate-800 dark:text-slate-200 mb-2">Especie
+                                *</label>
+                            <select name="especie" required
+                                class="w-full text-base p-3.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 focus:ring-4 focus:ring-teal-500/30 focus:outline-none font-bold">
+                                <option value="Perro">🐶 Perro (Canino)</option>
+                                <option value="Gato">🐱 Gato (Felino)</option>
+                                <option value="Fauna Silvestre">🦅 Fauna Silvestre</option>
+                                <option value="Otro">🐾 Otro</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-base font-bold text-slate-800 dark:text-slate-200 mb-2">Condición /
+                                Origen *</label>
+                            <select name="condicion" required
+                                class="w-full text-base p-3.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 focus:ring-4 focus:ring-teal-500/30 focus:outline-none font-bold">
+                                <option value="Rescatado">🆘 Rescatado (Rescate Comunitario)</option>
+                                <option value="Situación de Calle">🏘️ Situación de Calle (Comunitario)</option>
+                                <option value="Con Tutor">🏠 Con Tutor / Familia</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label
+                                class="block text-base font-bold text-slate-800 dark:text-slate-200 mb-2">Sexo</label>
+                            <select name="sexo"
+                                class="w-full text-base p-3.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 focus:ring-4 focus:ring-teal-500/30 focus:outline-none font-medium">
+                                <option value="Macho">Macho</option>
+                                <option value="Hembra">Hembra</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label
+                                class="block text-base font-bold text-slate-800 dark:text-slate-200 mb-2">Raza</label>
+                            <input type="text" name="raza" placeholder="Ej: Mestizo, Poodle" value="Mestizo"
+                                class="w-full text-base p-3.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 font-medium">
+                        </div>
+
+                        <div>
+                            <label class="block text-base font-bold text-slate-800 dark:text-slate-200 mb-2">Edad
+                                Aproximada</label>
+                            <input type="text" name="edad_aprox" placeholder="Ej: 2 años, 6 meses"
+                                class="w-full text-base p-3.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 font-medium">
+                        </div>
+                    </div>
+
+                    <div class="border-t border-slate-200 dark:border-slate-700 pt-5">
+                        <h4 class="text-base font-extrabold text-slate-700 dark:text-slate-300 mb-3">Datos del
+                            Responsable / Tutor (Opcional)</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-sm font-bold text-slate-600 dark:text-slate-300 mb-1">Nombre
+                                    Completo</label>
+                                <input type="text" name="tutor_nombre" placeholder="Ej: María Pérez"
+                                    class="w-full text-base p-3 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700">
+                            </div>
+                            <div>
+                                <label
+                                    class="block text-sm font-bold text-slate-600 dark:text-slate-300 mb-1">Cédula</label>
+                                <input type="text" name="tutor_cedula" placeholder="Ej: V-18234567"
+                                    class="w-full text-base p-3 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700">
+                            </div>
+                            <div>
+                                <label
+                                    class="block text-sm font-bold text-slate-600 dark:text-slate-300 mb-1">Teléfono</label>
+                                <input type="text" name="tutor_telefono" placeholder="Ej: 0412-1234567"
+                                    class="w-full text-base p-3 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 flex justify-end">
+                        <button type="submit"
+                            class="w-full sm:w-auto bg-nevado-600 hover:bg-nevado-700 text-white font-black text-base sm:text-lg px-8 py-4 rounded-xl shadow-xl transition transform active:scale-95 flex items-center justify-center gap-2">
+                            💾 Guardar Registro de Paciente
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- ==================================================== -->
+        <!-- TAB 2: CONSULTAS VETERINARIAS Y TRIAJE -->
+        <!-- ==================================================== -->
+        <div id="tab-consulta" class="tab-content hidden space-y-8">
+            <div
+                class="bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 max-w-4xl mx-auto space-y-6">
+                <div class="border-b border-slate-200 dark:border-slate-700 pb-4 flex justify-between items-center">
+                    <div>
+                        <h3 class="font-extrabold text-xl text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                            🩺 Triaje y Consulta Médica
+                        </h3>
+                        <p class="text-base text-slate-500 font-medium">Registro de diagnóstico, signos vitales y
+                            tratamiento médico</p>
+                    </div>
+                    <span
+                        class="bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300 text-sm px-3.5 py-1.5 rounded-xl font-black">
+                        Paso 2
+                    </span>
+                </div>
+
+                <form onsubmit="submitConsultaForm(event)" class="space-y-6">
+                    <div>
+                        <label class="block text-base font-bold text-slate-800 dark:text-slate-200 mb-2">Seleccionar
+                            Paciente Registrado *</label>
+                        <select name="animal_id" required
+                            class="select-patient-dropdown w-full text-base p-3.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 focus:ring-4 focus:ring-purple-500/30 font-bold">
+                            <option value="">Cargando lista de pacientes...</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-base font-bold text-slate-800 dark:text-slate-200 mb-2">Tipo de
+                                Atención *</label>
+                            <select name="tipo_atencion" required
+                                class="w-full text-base p-3.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 font-bold">
+                                <option value="Triaje">Triaje Rápido</option>
+                                <option value="Consulta General">Consulta General</option>
+                                <option value="Emergencia">Emergencia / Curación</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-base font-bold text-slate-800 dark:text-slate-200 mb-2">Peso
+                                (kg)</label>
+                            <input type="number" step="0.1" name="peso_kg" placeholder="Ej: 12.5"
+                                class="w-full text-base p-3.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 font-medium">
+                        </div>
+                        <div>
+                            <label class="block text-base font-bold text-slate-800 dark:text-slate-200 mb-2">Temperatura
+                                (°C)</label>
+                            <input type="number" step="0.1" name="temperatura" placeholder="Ej: 38.5"
+                                class="w-full text-base p-3.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 font-medium">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-base font-bold text-slate-800 dark:text-slate-200 mb-2">Síntomas
+                            Reportados</label>
+                        <textarea name="sintomas" rows="2" placeholder="Ej: Inapetencia, prurito..."
+                            class="w-full text-base p-3.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 font-medium"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-base font-bold text-slate-800 dark:text-slate-200 mb-2">Diagnóstico
+                            Presuntivo</label>
+                        <input type="text" name="diagnostico" placeholder="Ej: Otitis bilateral, parasitosis"
+                            class="w-full text-base p-3.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 font-medium">
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-base font-bold text-slate-800 dark:text-slate-200 mb-2">Tratamiento
+                                Indicado</label>
+                            <input type="text" name="tratamiento_indicado" placeholder="Ej: Amoxicilina 250mg cada 12h"
+                                class="w-full text-base p-3.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 font-medium">
+                        </div>
+                        <div>
+                            <label class="block text-base font-bold text-slate-800 dark:text-slate-200 mb-2">Veterinario
+                                Responsable</label>
+                            <input type="text" name="veterinario" placeholder="Dr. / Dra. Misión Nevado"
+                                class="w-full text-base p-3.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 font-medium">
+                        </div>
+                    </div>
+
+                    <div class="pt-4 flex justify-end">
+                        <button type="submit"
+                            class="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white font-black text-base sm:text-lg px-8 py-4 rounded-xl shadow-xl transition transform active:scale-95 flex items-center justify-center gap-2">
+                            🩺 Registrar Consulta Médica
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- TABLA DE CONSULTAS REGISTRADAS -->
+            <div
+                class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow border border-slate-200 dark:border-slate-700 space-y-4">
+                <h4 class="font-extrabold text-lg">Historial de Consultas Realizadas</h4>
+                <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr
+                                class="bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-bold border-b">
+                                <th class="py-3.5 px-4">Paciente</th>
+                                <th class="py-3.5 px-4">Tipo Atención</th>
+                                <th class="py-3.5 px-4">Peso / Temp</th>
+                                <th class="py-3.5 px-4">Diagnóstico</th>
+                                <th class="py-3.5 px-4">Veterinario</th>
+                                <th class="py-3.5 px-4 text-center">Estado</th>
+                                <th class="py-3.5 px-4 text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="consultas-tbody">
+                            <tr>
+                                <td colspan="7" class="text-center py-8 text-slate-400 text-base animate-pulse">Cargando
+                                    consultas...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================================================== -->
+        <!-- TAB 3: VACUNACIÓN, DESPARASITACIÓN Y TRATAMIENTOS -->
+        <!-- ==================================================== -->
+        <div id="tab-vacuna" class="tab-content hidden space-y-8">
+            <div
+                class="bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 max-w-4xl mx-auto space-y-6">
+                <div class="border-b border-slate-200 dark:border-slate-700 pb-4 flex justify-between items-center">
+                    <div>
+                        <h3 class="font-extrabold text-xl text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                            💉 Vacunación y Desparasitación
+                        </h3>
+                        <p class="text-base text-slate-500 font-medium">Registro de vacunas (Antirrábica, Séxtuple) y
+                            dosis aplicadas</p>
+                    </div>
+                    <span
+                        class="bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300 text-sm px-3.5 py-1.5 rounded-xl font-black">
+                        Paso 3
+                    </span>
+                </div>
+
+                <form onsubmit="submitVacunaForm(event)" class="space-y-6">
+                    <div>
+                        <label class="block text-base font-bold text-slate-800 dark:text-slate-200 mb-2">Seleccionar
+                            Paciente Registrado *</label>
+                        <select name="animal_id" required
+                            class="select-patient-dropdown w-full text-base p-3.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 focus:ring-4 focus:ring-blue-500/30 font-bold">
+                            <option value="">Cargando lista de pacientes...</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-base font-bold text-slate-800 dark:text-slate-200 mb-2">Tipo de
+                                Servicio *</label>
+                            <select name="tipo_servicio" required
+                                class="w-full text-base p-3.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 font-bold">
+                                <option value="Vacunación">💉 Vacunación</option>
+                                <option value="Desparasitación">💊 Desparasitación Oral/Inyectable</option>
+                                <option value="Tratamiento Menor">🩹 Tratamiento Menor / Curación</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-base font-bold text-slate-800 dark:text-slate-200 mb-2">Producto
+                                Aplicado *</label>
+                            <select name="producto" required
+                                class="w-full text-base p-3.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 font-bold">
+                                <option value="Antirrábica (Rabican)">💉 Antirrábica (Rabican)</option>
+                                <option value="Séxtuple Canina">🐶 Séxtuple Canina</option>
+                                <option value="Triple Felina">🐱 Triple Felina</option>
+                                <option value="Desparasitante Amplio Espectro">💊 Desparasitante Amplio Espectro
+                                </option>
+                                <option value="Vitamina B12 / Suplemento">🧪 Suplemento Vitamínico</option>
+                                <option value="Curación y Antiséptico">🩹 Curación de Herida</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-base font-bold text-slate-800 dark:text-slate-200 mb-2">Dosis / Vía
+                                de Administración</label>
+                            <input type="text" name="dosis" placeholder="Ej: 1 ml Subcutánea" value="1 ml Subcutánea"
+                                class="w-full text-base p-3.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 font-medium">
+                        </div>
+                        <div>
+                            <label
+                                class="block text-base font-bold text-slate-800 dark:text-slate-200 mb-2">Observaciones</label>
+                            <input type="text" name="observaciones" placeholder="Ej: Próximo refuerzo en 1 año"
+                                class="w-full text-base p-3.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 font-medium">
+                        </div>
+                    </div>
+
+                    <div class="pt-4 flex justify-end">
+                        <button type="submit"
+                            class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-black text-base sm:text-lg px-8 py-4 rounded-xl shadow-xl transition transform active:scale-95 flex items-center justify-center gap-2">
+                            💉 Registrar Vacuna o Dosis
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- TABLA DE VACUNAS -->
+            <div
+                class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow border border-slate-200 dark:border-slate-700 space-y-4">
+                <h4 class="font-extrabold text-lg">Historial de Vacunas y Dosis Aplicadas</h4>
+                <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr
+                                class="bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-bold border-b">
+                                <th class="py-3.5 px-4">Paciente</th>
+                                <th class="py-3.5 px-4">Servicio</th>
+                                <th class="py-3.5 px-4">Producto</th>
+                                <th class="py-3.5 px-4">Dosis</th>
+                                <th class="py-3.5 px-4 text-center">Estado</th>
+                                <th class="py-3.5 px-4 text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="vacunas-tbody">
+                            <tr>
+                                <td colspan="6" class="text-center py-8 text-slate-400 text-base animate-pulse">Cargando
+                                    vacunas...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================================================== -->
+        <!-- TAB 4: ESTERILIZACIONES Y CASTRACIONES -->
+        <!-- ==================================================== -->
+        <div id="tab-esteril" class="tab-content hidden space-y-8">
+            <div
+                class="bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 max-w-4xl mx-auto space-y-6">
+                <div class="border-b border-slate-200 dark:border-slate-700 pb-4 flex justify-between items-center">
+                    <div>
+                        <h3 class="font-extrabold text-xl text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                            ✂️ Censo y Registro de Esterilizaciones
+                        </h3>
+                        <p class="text-base text-slate-500 font-medium">Control de cirugías programadas y completadas
+                        </p>
+                    </div>
+                    <span
+                        class="bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300 text-sm px-3.5 py-1.5 rounded-xl font-black">
+                        Paso 4
+                    </span>
+                </div>
+
+                <form onsubmit="submitEsterilizacionForm(event)" class="space-y-6">
+                    <div>
+                        <label class="block text-base font-bold text-slate-800 dark:text-slate-200 mb-2">Seleccionar
+                            Paciente Registrado *</label>
+                        <select name="animal_id" required
+                            class="select-patient-dropdown w-full text-base p-3.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 focus:ring-4 focus:ring-emerald-500/30 font-bold">
+                            <option value="">Cargando lista de pacientes...</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label
+                                class="block text-base font-bold text-slate-800 dark:text-slate-200 mb-2">Procedimiento
+                                *</label>
+                            <select name="tipo_procedimiento" required
+                                class="w-full text-base p-3.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 font-bold">
+                                <option value="Castración Macho">Castración (Macho)</option>
+                                <option value="OVH Hembra">OVH - Ovariohisterectomía (Hembra)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-base font-bold text-slate-800 dark:text-slate-200 mb-2">Estado de
+                                Cirugía *</label>
+                            <select name="estado" required
+                                class="w-full text-base p-3.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 font-bold">
+                                <option value="Censado">📋 Censado (En lista)</option>
+                                <option value="Programado">📅 Programado (Fecha asignada)</option>
+                                <option value="Operado">✅ Operado (Completado)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-base font-bold text-slate-800 dark:text-slate-200 mb-2">Fecha
+                                Programada</label>
+                            <input type="date" name="fecha_programada"
+                                class="w-full text-base p-3.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 font-medium">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-base font-bold text-slate-800 dark:text-slate-200 mb-2">Cirujano
+                                Responsable</label>
+                            <input type="text" name="cirujano" placeholder="Ej: Dr. Gustavo Rivas"
+                                class="w-full text-base p-3.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 font-medium">
+                        </div>
+                        <div>
+                            <label
+                                class="block text-base font-bold text-slate-800 dark:text-slate-200 mb-2">Observaciones</label>
+                            <input type="text" name="observaciones" placeholder="Ej: Ayuno ok, sin complicación"
+                                class="w-full text-base p-3.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 font-medium">
+                        </div>
+                    </div>
+
+                    <div class="pt-4 flex justify-end">
+                        <button type="submit"
+                            class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-black text-base sm:text-lg px-8 py-4 rounded-xl shadow-xl transition transform active:scale-95 flex items-center justify-center gap-2">
+                            ✂️ Registrar Esterilización
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- TABLA DE ESTERILIZACIONES -->
+            <div
+                class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow border border-slate-200 dark:border-slate-700 space-y-4">
+                <h4 class="font-extrabold text-lg">Censo y Registro de Esterilizaciones</h4>
+                <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr
+                                class="bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-bold border-b">
+                                <th class="py-3.5 px-4">Paciente</th>
+                                <th class="py-3.5 px-4">Cirugía</th>
+                                <th class="py-3.5 px-4">Fecha Programada</th>
+                                <th class="py-3.5 px-4">Estado</th>
+                                <th class="py-3.5 px-4 text-center">Sincronización</th>
+                                <th class="py-3.5 px-4 text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="esterilizaciones-tbody">
+                            <tr>
+                                <td colspan="6" class="text-center py-8 text-slate-400 text-base animate-pulse">Cargando
+                                    censo...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================================================== -->
+        <!-- TAB 5: CITAS PARA CENTROS VETERINARIOS INTEGRALES (CVI) -->
+        <!-- ==================================================== -->
+        <div id="tab-cvi" class="tab-content hidden space-y-8">
+            <div
+                class="bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 max-w-4xl mx-auto space-y-6">
+                <div class="border-b border-slate-200 dark:border-slate-700 pb-4 flex justify-between items-center">
+                    <div>
+                        <h3 class="font-extrabold text-xl text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                            🏥 Agendar Cita en Centro CVI
+                        </h3>
+                        <p class="text-base text-slate-500 font-medium">Derivaciones para exámenes especializados o
+                            cirugías mayores</p>
+                    </div>
+                    <span
+                        class="bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300 text-sm px-3.5 py-1.5 rounded-xl font-black">
+                        Paso 5
+                    </span>
+                </div>
+
+                <form onsubmit="submitCitaCviForm(event)" class="space-y-6">
+                    <div>
+                        <label class="block text-base font-bold text-slate-800 dark:text-slate-200 mb-2">Seleccionar
+                            Paciente Registrado *</label>
+                        <select name="animal_id" required
+                            class="select-patient-dropdown w-full text-base p-3.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 focus:ring-4 focus:ring-amber-500/30 font-bold">
+                            <option value="">Cargando lista de pacientes...</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-base font-bold text-slate-800 dark:text-slate-200 mb-2">Centro
+                                Veterinario CVI Destino *</label>
+                            <select name="cvi_destino" required
+                                class="w-full text-base p-3.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 font-bold">
+                                <option value="CVI Canódromo (Los Símbolos)">🏥 CVI Canódromo (Los Símbolos)</option>
+                                <option value="CVI Nuevo Circo (Caracas)">🏥 CVI Nuevo Circo (Caracas)</option>
+                                <option value="CVI Caricuao">🏥 CVI Caricuao</option>
+                                <option value="CVI Catia">🏥 CVI Catia</option>
+                                <option value="CVI Regional">🏥 CVI Sede Regional</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-base font-bold text-slate-800 dark:text-slate-200 mb-2">Motivo de
+                                Derivación *</label>
+                            <select name="motivo_derivacion" required
+                                class="w-full text-base p-3.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 font-bold">
+                                <option value="Cirugía Compleja / Traumatología">🦴 Traumatología y Cirugía Compleja
+                                </option>
+                                <option value="Examen de Rayos X / Imagenología">🩻 Rayos X e Imagenología</option>
+                                <option value="Ecografía Abdominal">🔊 Ecografía Abdominal</option>
+                                <option value="Exámenes de Laboratorio Sangre">🧪 Laboratorio Clínico Especializado
+                                </option>
+                                <option value="Oftalmología / Odontología">👁️ Especialidades (Oftalmo/Odonto)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-base font-bold text-slate-800 dark:text-slate-200 mb-2">Fecha de la
+                                Cita *</label>
+                            <input type="date" name="fecha_cita" required
+                                class="w-full text-base p-3.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 font-bold">
+                        </div>
+
+                        <div>
+                            <label
+                                class="block text-base font-bold text-slate-800 dark:text-slate-200 mb-2">Prioridad</label>
+                            <select name="prioridad"
+                                class="w-full text-base p-3.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 font-bold">
+                                <option value="Normal">🟢 Normal</option>
+                                <option value="Alta">🟡 Alta</option>
+                                <option value="Urgente">🔴 Urgente (Atención Prioritaria)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-base font-bold text-slate-800 dark:text-slate-200 mb-2">Observaciones /
+                            Notas Clínicas</label>
+                        <textarea name="observaciones" rows="2" placeholder="Ej: Posible fractura de fémur, requiere RX"
+                            class="w-full text-base p-3.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 font-medium"></textarea>
+                    </div>
+
+                    <div class="pt-4 flex justify-end">
+                        <button type="submit"
+                            class="w-full sm:w-auto bg-amber-600 hover:bg-amber-700 text-white font-black text-base sm:text-lg px-8 py-4 rounded-xl shadow-xl transition transform active:scale-95 flex items-center justify-center gap-2">
+                            🏥 Agendar Cita en CVI
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- TABLA DE CITAS CVI -->
+            <div
+                class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow border border-slate-200 dark:border-slate-700 space-y-4">
+                <h4 class="font-extrabold text-lg">Citas Agendadas para Centros CVI</h4>
+                <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr
+                                class="bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-bold border-b">
+                                <th class="py-3.5 px-4">Paciente</th>
+                                <th class="py-3.5 px-4">CVI Destino</th>
+                                <th class="py-3.5 px-4">Motivo / Especialidad</th>
+                                <th class="py-3.5 px-4">Fecha Cita</th>
+                                <th class="py-3.5 px-4">Prioridad</th>
+                                <th class="py-3.5 px-4 text-center">Estado</th>
+                                <th class="py-3.5 px-4 text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="citas-cvi-tbody">
+                            <tr>
+                                <td colspan="7" class="text-center py-8 text-slate-400 text-base animate-pulse">Cargando
+                                    citas CVI...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- PIE DE PÁGINA ACCESIBLE -->
+    <footer class="bg-slate-800 text-slate-300 py-6 border-t border-slate-700 text-center text-sm font-medium mt-auto">
+        <div class="max-w-7xl mx-auto px-4">
+            Fundación Misión Nevado © 2026 - Sistema de Atención Veterinaria Offline | Venezuela
+        </div>
+    </footer>
+
+    <!-- Scripts de la Aplicación -->
+    <script src="js/offline.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const tabParam = params.get('tab');
+            if (tabParam) {
+                switchTab(tabParam);
+            }
+        });
+    </script>
+</body>
+
+</html>
